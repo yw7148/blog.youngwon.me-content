@@ -10,6 +10,10 @@ tags:
   - Ranking
 ---
 
+![수많은 랭킹 데이터 사이에 사용자의 최신 점수를 끼워 넣는 스냅샷 기반 랭킹 시스템](https://raw.githubusercontent.com/yw7148/blog.youngwon.me-content/main/images/realtime-ranking-hero.png)
+
+`System Design` `Database Index` `Snapshot` `Score Bucketing` `Eventual Consistency`
+
 ## 한 줄 요약
 
 - 전체 랭킹은 주기적으로 스냅샷을 만들어 DB의 실시간 정렬 부담을 줄인다.
@@ -135,6 +139,8 @@ DB의 일을 줄이는 가장 쉬운 방법은 일정 주기마다 랭킹을 계
 ```
 
 스냅샷은 DB의 별도 테이블에 둘 수도 있고, 조회량이 많다면 캐시나 정렬된 자료구조에 둘 수도 있다. 저장소보다 중요한 것은 실시간으로 갱신되는 원본 점수와 읽기 전용에 가까운 랭킹 스냅샷의 책임을 분리하는 것이다.
+
+![랭킹 스냅샷과 사용자의 최신 점수를 결합해 개인화된 주변 랭킹을 만드는 흐름](https://raw.githubusercontent.com/yw7148/blog.youngwon.me-content/main/images/realtime-ranking-flow.svg)
 
 ## 결정해야 할 세부 규칙
 

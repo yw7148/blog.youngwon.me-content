@@ -2,7 +2,7 @@
 title: "실시간 랭킹은 정말 실시간이어야 할까"
 description: "자주 바뀌는 점수와 비싼 순위 계산 사이에서, 스냅샷과 점수 구간을 이용해 사용자가 납득할 수 있는 랭킹을 설계한 과정을 정리한다."
 publishedAt: 2026-08-09
-draft: true
+draft: false
 tags:
   - Backend
   - Database

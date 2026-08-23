@@ -5,6 +5,7 @@
 ## 구조
 
 ```text
+ideas/          AI와 발전시키기 전의 간단한 아이디어 메모
 posts/          글 초안과 발행 원고
 templates/      새 글 작성용 템플릿
 ```
@@ -18,6 +19,9 @@ templates/      새 글 작성용 템플릿
 `draft: true`, 발행할 글은 `draft: false`로 설정합니다.
 
 지원하는 frontmatter 필드는 [SCHEMA.md](./SCHEMA.md)에 정리되어 있습니다.
+
+아직 글의 형태가 잡히지 않은 주제는 `ideas/`에 먼저 기록합니다. 핵심 아이디어와
+bullet point만 적어 두었다가 AI와 함께 `posts/`의 정식 원고로 발전시킬 수 있습니다.
 
 ## 블로그에 반영
 

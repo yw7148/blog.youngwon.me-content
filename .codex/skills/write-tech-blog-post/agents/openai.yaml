@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Tech Blog Post"
+  short_description: "아이디어를 발행 가능한 기술 블로그 글로 발전시키기"
+  default_prompt: "Use $write-tech-blog-post to turn an idea note into a polished technical blog post."

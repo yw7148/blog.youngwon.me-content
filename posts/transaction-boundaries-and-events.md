@@ -1,6 +1,6 @@
 ---
-title: "트랜잭션을 나눴더니 이벤트가 데이터를 잃어버렸다"
-description: "REQUIRES_NEW를 적용한 뒤 이벤트 리스너가 데이터를 찾지 못한 문제를 통해, 트랜잭션 경계가 커밋과 롤백뿐 아니라 이벤트의 실행 시점과 데이터 가시성까지 결정하는 과정을 살펴본다."
+title: "트랜잭션을 나눴더니 이벤트는 데이터를 잃었다."
+description: "REQUIRES_NEW를 적용한 뒤 발생한 문제를 통해, 트랜잭션 경계가 이벤트의 실행 시점, 데이터 가시성까지 결정하는 과정을 살펴본다."
 publishedAt: 2026-08-23
 draft: true
 tags:
@@ -9,6 +9,8 @@ tags:
   - Transaction
   - Event-Driven Architecture
 ---
+
+![분리된 두 트랜잭션 경계 사이에서 주문 데이터와 이벤트가 서로 다른 영역에 놓인 모습](https://raw.githubusercontent.com/yw7148/blog.youngwon.me-content/main/images/transaction-boundaries-hero.png)
 
 `Spring Transaction` `REQUIRES_NEW` `TransactionalEventListener` `Data Visibility` `Domain Event`
 
@@ -128,16 +130,7 @@ Transaction B의 `BEFORE_COMMIT` 리스너는 Transaction A가 재개되어 주�
 
 PostgreSQL의 기본 격리 수준인 `READ COMMITTED`에서 조회는 다른 트랜잭션이 커밋하지 않은 변경을 읽지 않는다. 하나의 트랜잭션 안에서는 자신의 미커밋 변경을 볼 수 있지만, `REQUIRES_NEW`로 시작한 트랜잭션은 더 이상 같은 트랜잭션이 아니다.
 
-문제를 일으킨 경계는 다음과 같았다.
-
-| 구분 | Transaction A | Transaction B |
-| --- | --- | --- |
-| 담당 작업 | 주문과 구독 연결 | 구독 생성 |
-| 이벤트 결합 | 변경 전 | 변경 후 |
-| B 커밋 시 보이는 데이터 | 아직 커밋되지 않음 | 구독 생성 완료 |
-| 리스너가 기대한 상태 | 주문과 구독 연결 완료 | 구독 생성 완료만 보장 |
-
-리스너는 이벤트가 보장하는 상태보다 더 많은 상태를 기대하고 있었다.
+결국 Transaction B가 보장하는 것은 구독 생성 완료뿐이었다. 리스너는 이 이벤트를 받으면서 Transaction A가 확정할 주문 연결까지 기대하고 있었다.
 
 ## 이벤트 phase를 바꿔도 해결되지 않았다
 
@@ -197,20 +190,11 @@ Transaction A: Order 연결 중 실패하여 롤백
 주문과 구독의 연결 완료가 필요한 후속 작업에는 그 상태를 명시적으로 표현하는 이벤트가 더 자연스럽다.
 
 ```kotlin
-@Transactional
-fun handleSubscriptionPurchased(orderId: Long) {
-    val order = orderRepository.getById(orderId)
-    val subscription = subscriptionService.createSubscription(order.customerId)
+order.linkSubscription(subscription.id)
 
-    order.linkSubscription(subscription.id)
-
-    eventPublisher.publishEvent(
-        OrderSubscriptionLinkedEvent(
-            orderId = order.id,
-            subscriptionId = subscription.id
-        )
-    )
-}
+eventPublisher.publishEvent(
+    OrderSubscriptionLinkedEvent(order.id, subscription.id)
+)
 ```
 
 두 이벤트가 의미하는 완료 상태는 다르다.
@@ -220,43 +204,19 @@ fun handleSubscriptionPurchased(orderId: Long) {
 | `SubscriptionCreatedEvent` | 구독 생성 완료 | 구독을 생성하는 Transaction B |
 | `OrderSubscriptionLinkedEvent` | 주문과 구독 연결 완료 | 연결을 확정하는 Transaction A |
 
-이벤트 소비자도 자신에게 실제로 필요한 이벤트를 선택할 수 있다. 구독 자체만 필요하면 `SubscriptionCreatedEvent`를, 주문과 구독이 연결된 상태가 필요하면 `OrderSubscriptionLinkedEvent`를 처리한다.
+이벤트 소비자도 자신에게 실제로 필요한 완료 상태를 선택할 수 있다. 구독 자체만 필요하면 `SubscriptionCreatedEvent`를, 주문과 구독의 연결이 필요하면 `OrderSubscriptionLinkedEvent`를 처리한다.
 
-다만 이 구분만으로 전달 신뢰성까지 자동으로 해결되지는 않는다. 프로세스가 DB 커밋 직후 종료되거나 외부 메시지 브로커 전송에 실패할 수 있다면, DB 변경과 이벤트 기록을 같은 트랜잭션에 저장하는 Outbox와 멱등한 재시도를 함께 고려해야 한다. 여러 단계의 보상 작업이 필요한 긴 흐름이라면 Saga가 더 적합할 수도 있다.
+## REQUIRES_NEW가 정말 필요했을까
 
-## 트랜잭션을 나누기 전에 물어볼 것
+돌이켜보면 두 작업이 함께 성공하거나 실패해야 한다면 하나의 트랜잭션에 두는 편이 자연스럽다. 예외에 의한 rollback-only가 문제라면 트랜잭션부터 나누기보다 PostgreSQL의 `INSERT ... ON CONFLICT`처럼 같은 트랜잭션 안에서 충돌을 처리할 방법을 먼저 검토할 수 있다.
 
-`REQUIRES_NEW`는 강력하지만 단순한 예외 회피 장치는 아니다. 적용하기 전에는 다음 질문을 먼저 확인해야 한다.
-
-### 정말 독립적으로 커밋되어야 하는가
-
-두 작업이 함께 성공하거나 실패해야 한다면 하나의 트랜잭션에 두는 편이 상태를 이해하기 쉽다. 예외에 의한 rollback-only가 문제라면 트랜잭션부터 나누기보다 PostgreSQL의 `INSERT ... ON CONFLICT`처럼 같은 트랜잭션 안에서 충돌을 처리할 방법을 먼저 검토할 수 있다.
-
-### 부분 완료 상태를 허용할 수 있는가
-
-안쪽 트랜잭션이 성공하고 바깥 트랜잭션이 실패할 수 있다. 이때 남은 데이터를 어떻게 복구하거나 이어서 처리할지 정해져 있어야 한다. “둘 중 하나만 성공한 상태”가 도메인에서 유효하지 않다면 트랜잭션 분리 자체를 다시 봐야 한다.
-
-### 이벤트는 어느 커밋에 결합되는가
-
-메서드 호출 관계만 보지 말고 이벤트 발행 시점의 활성 트랜잭션을 확인해야 한다. 리스너가 `BEFORE_COMMIT`인지 `AFTER_COMMIT`인지보다 먼저, 어느 트랜잭션의 before와 after인지 물어야 한다.
-
-### 리스너가 기대하는 데이터는 누가 확정하는가
-
-이벤트가 “구독 생성”을 알리는데 소비자가 “주문 연결 완료”까지 기대한다면 경계가 이미 어긋나 있다. 이벤트 이름, payload, 발행 트랜잭션이 같은 완료 상태를 가리키도록 맞춰야 한다.
-
-### 운영 자원에도 영향이 없는가
-
-Spring 공식 문서가 설명하듯 바깥 트랜잭션의 자원이 묶여 있는 동안 안쪽 트랜잭션은 새 DB 커넥션을 획득할 수 있다. 동시 요청이 많으면 커넥션 풀이 고갈되거나 교착 상태로 이어질 수 있으므로, 의미적 경계뿐 아니라 자원 사용량도 함께 확인해야 한다.
+분리가 반드시 필요하다면 안쪽 트랜잭션만 성공한 부분 완료 상태를 도메인이 허용하는지, 남은 작업을 어떻게 이어갈지까지 정해야 한다. `REQUIRES_NEW`는 단순한 예외 회피 장치가 아니라 새로운 커밋 경계를 만드는 선택이다.
 
 ## 정리
 
-`createSubscription`에 `REQUIRES_NEW`를 적용했을 때 분리된 것은 메서드 하나가 아니었다. 구독 생성의 커밋과 롤백 범위, 이벤트가 결합되는 트랜잭션, 리스너의 실행 시점, 후속 작업이 볼 수 있는 데이터가 함께 달라졌다.
+`createSubscription`에 `REQUIRES_NEW`를 적용했을 때 분리된 것은 메서드 하나가 아니었다. 커밋과 롤백 범위뿐 아니라 이벤트가 결합되는 트랜잭션과 후속 작업이 볼 수 있는 데이터도 함께 달라졌다.
 
-이벤트는 사라지지 않았다. Transaction B에 정상적으로 결합되어 실행됐지만, 리스너는 Transaction A가 확정해야 할 상태까지 기대하고 있었다. 이벤트 발행 위치를 바깥으로 옮겨 당장의 조회 문제는 해결할 수 있었지만, 독립 커밋이 만든 부분 완료 상태까지 해결하지는 못했다.
-
-결국 기준은 코드의 위치가 아니라 완료된 비즈니스 상태였다. `SubscriptionCreatedEvent`는 구독 생성을, `OrderSubscriptionLinkedEvent`는 주문과 구독의 연결을 의미하도록 나누자 트랜잭션과 이벤트의 책임이 선명해졌다.
-
-트랜잭션 경계를 바꿀 때는 그 안의 쿼리만 보면 부족하다. 그 경계에 암묵적으로 의존하던 이벤트와 후속 작업까지 함께 추적해야 한다. 트랜잭션은 생각보다 훨씬 많은 것을 결정한다.
+기준은 이벤트를 발행한 코드의 위치가 아니라 완료된 비즈니스 상태였다. 트랜잭션 경계를 바꿀 때는 그 안의 쿼리만 보지 말고, 그 경계에 의존하던 이벤트와 후속 작업까지 함께 추적해야 한다. 트랜잭션은 생각보다 훨씬 많은 것을 결정한다.
 
 ## 참고 자료
 

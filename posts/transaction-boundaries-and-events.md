@@ -2,7 +2,7 @@
 title: "트랜잭션을 나눴더니 이벤트는 데이터를 잃었다."
 description: "REQUIRES_NEW를 적용한 뒤 발생한 문제를 통해, 트랜잭션 경계가 이벤트의 실행 시점, 데이터 가시성까지 결정하는 과정을 살펴본다."
 publishedAt: 2026-08-23
-draft: true
+draft: false
 tags:
   - Backend
   - Spring

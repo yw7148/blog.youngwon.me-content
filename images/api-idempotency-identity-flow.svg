@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
+  <title id="title">operationId와 interactionId로 재시도와 재학습을 구분하는 흐름</title>
+  <desc id="desc">같은 operationId를 사용한 생성 요청과 재시도는 하나의 ContentInteraction으로 수렴하고, 새로운 학습 시도는 새 operationId와 별도 ContentInteraction을 만든다.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#08111f"/>
+      <stop offset="1" stop-color="#111a31"/>
+    </linearGradient>
+    <linearGradient id="recordA" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e7490"/>
+      <stop offset="1" stop-color="#155e75"/>
+    </linearGradient>
+    <linearGradient id="recordB" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c2410c"/>
+      <stop offset="1" stop-color="#9a3412"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000814" flood-opacity=".35"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10Z" fill="#64748b"/>
+    </marker>
+    <marker id="arrowCyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10Z" fill="#22d3ee"/>
+    </marker>
+    <marker id="arrowOrange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10Z" fill="#fb923c"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="680" rx="28" fill="url(#background)"/>
+  <g opacity=".1" stroke="#94a3b8">
+    <path d="M0 85H1200M0 170H1200M0 255H1200M0 340H1200M0 425H1200M0 510H1200M0 595H1200"/>
+    <path d="M100 0V680M200 0V680M300 0V680M400 0V680M500 0V680M600 0V680M700 0V680M800 0V680M900 0V680M1000 0V680M1100 0V680"/>
+  </g>
+
+  <text x="64" y="62" fill="#f8fafc" font-family="Pretendard, system-ui, sans-serif" font-size="27" font-weight="700">같은 재시도는 하나로, 실제 재학습은 별도로</text>
+  <text x="64" y="96" fill="#94a3b8" font-family="Pretendard, system-ui, sans-serif" font-size="17">생성 의도와 만들어진 학습 시도에 서로 다른 identity를 부여한다</text>
+
+  <text x="76" y="145" fill="#67e8f9" font-family="Pretendard, system-ui, sans-serif" font-size="15" font-weight="700">같은 학습 시작 의도</text>
+  <g filter="url(#shadow)" font-family="Pretendard, system-ui, sans-serif">
+    <rect x="64" y="168" width="248" height="84" rx="16" fill="#15213a" stroke="#0e7490"/>
+    <text x="88" y="202" fill="#f8fafc" font-size="18" font-weight="700">최초 생성 요청</text>
+    <text x="88" y="229" fill="#67e8f9" font-size="15">operationId = op-A</text>
+
+    <rect x="64" y="278" width="248" height="84" rx="16" fill="#15213a" stroke="#0e7490"/>
+    <text x="88" y="312" fill="#f8fafc" font-size="18" font-weight="700">응답 유실 후 재시도</text>
+    <text x="88" y="339" fill="#67e8f9" font-size="15">operationId = op-A</text>
+
+    <rect x="414" y="192" width="276" height="146" rx="20" fill="#17223b" stroke="#22d3ee"/>
+    <text x="552" y="228" fill="#f8fafc" text-anchor="middle" font-size="19" font-weight="700">생성 멱등성 경계</text>
+    <text x="552" y="260" fill="#a5f3fc" text-anchor="middle" font-size="15">operationId 처리 이력 확인</text>
+    <rect x="454" y="280" width="196" height="36" rx="9" fill="#0f172a"/>
+    <text x="552" y="304" fill="#67e8f9" text-anchor="middle" font-size="14">op-A → interaction-123</text>
+
+    <rect x="794" y="176" width="334" height="202" rx="22" fill="url(#recordA)" stroke="#22d3ee"/>
+    <text x="961" y="215" fill="#ecfeff" text-anchor="middle" font-size="15">서버 리소스 identity</text>
+    <text x="961" y="249" fill="#ffffff" text-anchor="middle" font-size="22" font-weight="700">interaction-123</text>
+    <line x1="836" y1="280" x2="1086" y2="280" stroke="#67e8f9" stroke-opacity=".45"/>
+    <circle cx="852" cy="323" r="8" fill="#ffffff"/>
+    <circle cx="960" cy="323" r="8" fill="#ffffff"/>
+    <circle cx="1068" cy="323" r="8" fill="#ffffff"/>
+    <path d="M860 323H952M968 323H1060" stroke="#bae6fd" stroke-width="2"/>
+    <text x="852" y="354" fill="#cffafe" text-anchor="middle" font-size="13">생성</text>
+    <text x="960" y="354" fill="#cffafe" text-anchor="middle" font-size="13">수정</text>
+    <text x="1068" y="354" fill="#cffafe" text-anchor="middle" font-size="13">완료</text>
+
+    <rect x="64" y="478" width="248" height="88" rx="16" fill="#271c1a" stroke="#f97316"/>
+    <text x="88" y="513" fill="#fff7ed" font-size="18" font-weight="700">실제 두 번째 학습</text>
+    <text x="88" y="541" fill="#fdba74" font-size="15">operationId = op-B</text>
+
+    <rect x="414" y="462" width="276" height="120" rx="20" fill="#261d20" stroke="#fb923c"/>
+    <text x="552" y="504" fill="#fff7ed" text-anchor="middle" font-size="19" font-weight="700">새로운 생성 의도</text>
+    <text x="552" y="538" fill="#fdba74" text-anchor="middle" font-size="15">새 operationId이므로 별도 생성</text>
+    <text x="552" y="563" fill="#94a3b8" text-anchor="middle" font-size="13">domain invariant를 통과한 경우</text>
+
+    <rect x="794" y="462" width="334" height="120" rx="22" fill="url(#recordB)" stroke="#fb923c"/>
+    <text x="961" y="505" fill="#ffedd5" text-anchor="middle" font-size="15">별개의 학습 시도</text>
+    <text x="961" y="543" fill="#ffffff" text-anchor="middle" font-size="22" font-weight="700">interaction-456</text>
+  </g>
+
+  <path d="M312 210C360 210 366 238 414 248" fill="none" stroke="#22d3ee" stroke-width="3" marker-end="url(#arrowCyan)"/>
+  <path d="M312 320C360 320 366 292 414 282" fill="none" stroke="#22d3ee" stroke-width="3" marker-end="url(#arrowCyan)"/>
+  <path d="M690 265H786" fill="none" stroke="#22d3ee" stroke-width="3" marker-end="url(#arrowCyan)"/>
+  <text x="738" y="245" fill="#67e8f9" text-anchor="middle" font-family="Pretendard, system-ui, sans-serif" font-size="13">항상 같은 결과</text>
+
+  <path d="M312 522H406" fill="none" stroke="#fb923c" stroke-width="3" marker-end="url(#arrowOrange)"/>
+  <path d="M690 522H786" fill="none" stroke="#fb923c" stroke-width="3" marker-end="url(#arrowOrange)"/>
+
+  <rect x="64" y="616" width="1064" height="38" rx="10" fill="#0f172a" stroke="#334155"/>
+  <text x="596" y="641" fill="#cbd5e1" text-anchor="middle" font-family="Pretendard, system-ui, sans-serif" font-size="15">operationId는 생성 의도를, interactionId는 생성된 학습 시도를 식별한다</text>
+</svg>

@@ -10,7 +10,7 @@ tags:
   - Ranking
 ---
 
-![수많은 랭킹 데이터 사이에 사용자의 최신 점수를 끼워 넣는 스냅샷 기반 랭킹 시스템](https://raw.githubusercontent.com/yw7148/blog.youngwon.me-content/main/images/realtime-ranking-hero.png)
+![랭킹 목록에서 사용자의 행이 최신 점수에 맞는 위치로 올라가는 2D 일러스트](https://raw.githubusercontent.com/yw7148/blog.youngwon.me-content/main/images/realtime-ranking-hero.png)
 
 `System Design` `Database Index` `Snapshot` `Score Bucketing` `Eventual Consistency`
 

@@ -9,6 +9,8 @@ tags:
   - Idempotency
 ---
 
+![같은 학습 시도의 반복 요청은 하나의 완료 기록으로 모이고 새 학습은 별도 기록으로 남는 2D 일러스트](https://raw.githubusercontent.com/yw7148/blog.youngwon.me-content/main/images/api-idempotency-boundaries-hero.png)
+
 `Idempotency` `State Transition` `Operation ID` `Optimistic Locking` `Domain Invariant`
 
 같은 학습 완료 요청이 두 번 들어왔다. 이것은 더블 클릭일까, 네트워크 재시도일까, 아니면 사용자가 같은 문제를 실제로 두 번 푼 것일까?
@@ -58,12 +60,7 @@ POST /content-interactions
 
 서버는 처음 보는 `operationId`라면 `ContentInteraction`을 생성하고 `interactionId`를 반환한다. 이미 처리한 `operationId`라면 새로 만들지 않고 이전에 생성한 `interactionId`를 반환한다.
 
-```text
-client operationId
-  -> create
-  -> server interactionId
-  -> update / complete
-```
+![같은 operationId의 재시도는 하나의 interactionId로 수렴하고 새 학습은 별도 interactionId를 만드는 흐름](https://raw.githubusercontent.com/yw7148/blog.youngwon.me-content/main/images/api-idempotency-identity-flow.svg)
 
 여기서 두 ID의 역할은 다르다.
 
@@ -148,13 +145,11 @@ WHERE id = :interactionId
 
 여기까지만 보면 간단하지만, 완료 시 보상 지급이나 다음 콘텐츠 해금, 이벤트 발행이 뒤따른다면 상태만 멱등적으로 바꾸는 것으로는 부족하다.
 
-```text
-상태는 COMPLETED로 변경됨
-  -> 프로세스 중단
-  -> 완료 이벤트는 기록되지 않음
-```
+상태 변경 뒤 프로세스가 중단되면 완료 이벤트가 기록되지 않을 수 있다. 반대로 이벤트를 먼저 발행하면 이벤트는 전달됐지만 상태 전이가 실패할 수 있다. 따라서 실제 전이를 일으킨 트랜잭션 안에서 후속 작업의 실행 의도도 함께 기록해야 한다.
 
-반대로 이벤트를 먼저 발행하면 이벤트는 전달됐지만 상태 전이가 실패할 수 있다. 따라서 실제 전이를 일으킨 트랜잭션 안에서 후속 작업의 실행 의도도 함께 기록해야 한다. 트랜잭셔널 outbox나 `interactionId + effectType`에 유일성을 둔 effect 기록은 이를 구현하는 선택지다. 어떤 방식을 쓰든 핵심 조건은 다음 두 가지다.
+![완료 상태 전이와 outbox 기록을 하나의 트랜잭션에 두고 소비자가 부수 효과를 한 번만 적용하는 흐름](https://raw.githubusercontent.com/yw7148/blog.youngwon.me-content/main/images/api-idempotency-effect-boundary.svg)
+
+트랜잭셔널 outbox나 `interactionId + effectType`에 유일성을 둔 effect 기록은 이를 구현하는 선택지다. 어떤 방식을 쓰든 핵심 조건은 다음 두 가지다.
 
 - 실제 상태 전이가 일어난 경우에만 부수 효과의 실행 의도를 만든다.
 - 같은 실행 의도가 다시 전달돼도 소비자가 같은 효과를 중복 적용하지 않는다.

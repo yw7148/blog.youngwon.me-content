@@ -9,7 +9,7 @@ tags:
   - Idempotency
 ---
 
-![같은 학습 시도의 반복 요청은 하나의 완료 기록으로 모이고 새 학습은 별도 기록으로 남는 2D 일러스트](https://raw.githubusercontent.com/yw7148/blog.youngwon.me-content/main/images/api-idempotency-boundaries-hero.png)
+![같은 userId와 contentId로 POST /learning/completions를 두 번 호출해도 재시도라면 학습 기록 1개, 실제 재학습이라면 2개가 필요해 요청만으로는 구분할 수 없는 상황](https://raw.githubusercontent.com/yw7148/blog.youngwon.me-content/main/images/api-idempotency-boundaries-hero.png)
 
 `Idempotency` `State Transition` `Operation ID` `Optimistic Locking` `Domain Invariant`
 

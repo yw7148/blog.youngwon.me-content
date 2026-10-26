@@ -10,7 +10,7 @@ tags:
   - Ranking
 ---
 
-![랭킹 목록에서 사용자의 행이 최신 점수에 맞는 위치로 올라가는 2D 일러스트](https://raw.githubusercontent.com/yw7148/blog.youngwon.me-content/main/images/realtime-ranking-hero.png)
+![점수가 계속 바뀌는 랭킹 화면 옆에서 점수 갱신과 순위 조회 요청이 DB에 몰려 대기하는 모습](https://raw.githubusercontent.com/yw7148/blog.youngwon.me-content/main/images/realtime-ranking-hero.png)
 
 `System Design` `Database Index` `Snapshot` `Score Bucketing` `Eventual Consistency`
 

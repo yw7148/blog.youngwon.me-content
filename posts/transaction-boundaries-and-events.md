@@ -10,7 +10,7 @@ tags:
   - Event-Driven Architecture
 ---
 
-![분리된 두 트랜잭션 경계 사이에서 주문 데이터와 이벤트가 서로 다른 영역에 놓인 모습](https://raw.githubusercontent.com/yw7148/blog.youngwon.me-content/main/images/transaction-boundaries-hero.png)
+![Transaction A의 주문 연결 전에 REQUIRES_NEW로 분리된 Transaction B에서 SubscriptionCreatedEvent를 발행하고 BEFORE_COMMIT 리스너가 주문을 조회해 null을 받는 흐름](https://raw.githubusercontent.com/yw7148/blog.youngwon.me-content/main/images/transaction-boundaries-hero.png)
 
 `Spring Transaction` `REQUIRES_NEW` `TransactionalEventListener` `Data Visibility` `Domain Event`
 

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="480" viewBox="0 0 1200 480" role="img" aria-labelledby="title desc">
+  <title id="title">저장된 추천의 종류에 따른 리포트 제공 경로</title>
+  <desc id="desc">LearningHub는 과거 추천의 skill 결과를 추천 서버의 변환 API로 점수 표현으로 바꾸고, v2 추천에서는 저장된 점수를 사용한다. 두 경로는 사용자 서비스의 공통 리포트 형태로 연결되지만, 과거에 없던 정보는 비워둔다.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="480" rx="24" fill="#0f172a"/>
+  <g font-family="Pretendard, system-ui, sans-serif">
+    <text x="48" y="58" fill="#f8fafc" font-size="27" font-weight="700">리포트 형태는 모으고, 데이터의 차이는 남긴다</text>
+    <text x="48" y="92" fill="#94a3b8" font-size="17">LearningHub의 저장 데이터 조회 흐름을 단순화한 개념도</text>
+
+    <rect x="48" y="140" width="242" height="94" rx="14" fill="#1e293b" stroke="#fb923c"/>
+    <text x="169" y="179" text-anchor="middle" fill="#fff7ed" font-size="21" font-weight="700">과거 추천 스냅샷</text>
+    <text x="169" y="210" text-anchor="middle" fill="#fdba74" font-size="17">skill 기반 결과</text>
+
+    <rect x="368" y="140" width="306" height="94" rx="14" fill="#30241f" stroke="#fb923c"/>
+    <text x="521" y="179" text-anchor="middle" fill="#fff7ed" font-size="21" font-weight="700">점수 표현으로 변환</text>
+    <text x="521" y="210" text-anchor="middle" fill="#fdba74" font-size="17">추천 서버의 변환 API</text>
+
+    <rect x="48" y="278" width="242" height="94" rx="14" fill="#1e293b" stroke="#22d3ee"/>
+    <text x="169" y="317" text-anchor="middle" fill="#ecfeff" font-size="21" font-weight="700">v2 추천 스냅샷</text>
+    <text x="169" y="348" text-anchor="middle" fill="#67e8f9" font-size="17">섹션별 점수 포함</text>
+
+    <rect x="368" y="278" width="306" height="94" rx="14" fill="#12303d" stroke="#22d3ee"/>
+    <text x="521" y="317" text-anchor="middle" fill="#ecfeff" font-size="21" font-weight="700">저장된 점수 사용</text>
+    <text x="521" y="348" text-anchor="middle" fill="#67e8f9" font-size="17">추가 변환 없이 제공</text>
+
+    <rect x="822" y="193" width="330" height="126" rx="16" fill="#1e293b" stroke="#a5b4fc"/>
+    <text x="987" y="232" text-anchor="middle" fill="#e0e7ff" font-size="17">사용자 서비스</text>
+    <text x="987" y="266" text-anchor="middle" fill="#f8fafc" font-size="23" font-weight="700">공통 리포트 형태</text>
+    <text x="987" y="296" text-anchor="middle" fill="#cbd5e1" font-size="17">과거에 없던 정보는 null</text>
+
+    <path d="M290 187H358" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <path d="M290 325H358" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <path d="M674 187H732V238H812" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <path d="M674 325H766V274H812" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+    <text x="600" y="432" text-anchor="middle" fill="#cbd5e1" font-size="18">새 형식으로 변환한 결과와 당시 저장된 사실은 구분한다</text>
+  </g>
+</svg>

@@ -10,6 +10,8 @@ tags:
   - Migration
 ---
 
+![과거 skill 기반 학습 리포트를 새 점수 화면으로 전환하고, 같은 형식의 과거·현재 리포트에서 당시 없던 지표는 빈칸으로 보존하는 모습](https://raw.githubusercontent.com/yw7148/blog.youngwon.me-content/main/images/toefl-recommendation-v2-hero-refined.png)
+
 `API Evolution` `Backward Compatibility` `Snapshot` `Sealed Type` `Data Migration`
 
 추천 API를 새 버전으로 바꾸면, 사용자가 지난달에 받았던 학습 리포트는 어떻게 보여줘야 할까?
